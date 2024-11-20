@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 import pickle
-from ticTacToe.ticTacToeLib import GameDatabase
+# from ticTacToe.ticTacToeLib import GameDatabase
 from sklearn.tree import DecisionTreeClassifier
 import pandas as pd
 
@@ -37,7 +37,7 @@ def prepare_data():
     # Convert board states to numerical values
     mapping = {'x': 1, 'o': -1, 'b': 0}
     X = df.iloc[:, :9].replace(mapping).values
-    y = (df['class'] == True).astype(int)  # Changed to handle True/False values
+    y = (df['class'] == True).astype(int)  
     
     print("First few rows after processing:")
     print("X:", X[:5])
@@ -46,7 +46,6 @@ def prepare_data():
     return X, y
 
 def train_model(model_type="random_forest"):
-    # Prepare data
     X, y = prepare_data()
     
     if len(X) == 0:
