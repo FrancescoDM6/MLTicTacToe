@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import confusion_matrix, classification_report
 import pickle
-# from ticTacToe.ticTacToeLib import GameDatabase
 from sklearn.tree import DecisionTreeClassifier
 import pandas as pd
 
@@ -26,7 +26,6 @@ def create_random_forest_model():
 def prepare_data():
     import pandas as pd
     
-    # Load the dataset - skip the first row which contains headers
     df = pd.read_csv('tic-tac-toe.csv', skiprows=1, names=[
         'TL', 'TM', 'TR',
         'ML', 'MM', 'MR',
@@ -34,7 +33,16 @@ def prepare_data():
         'class'
     ])
     
-    # Convert board states to numerical values
+
+    print("\nDataset Information:")
+    print(f"Total samples: {len(df)}")
+    print("\nClass distribution:")
+    print(df['class'].value_counts(normalize=True))
+
+    duplicates = df.duplicated().sum()
+    print(f"\nNumber of duplicate rows: {duplicates}")
+
+    # convert board states to numerical values
     mapping = {'x': 1, 'o': -1, 'b': 0}
     X = df.iloc[:, :9].replace(mapping).values
     y = (df['class'] == True).astype(int)  
@@ -45,30 +53,7 @@ def prepare_data():
     
     return X, y
 
-def train_model(model_type="random_forest"):
-    X, y = prepare_data()
-    
-    if len(X) == 0:
-        print("No training data available!")
-        return
-    
-    # Split data
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    
-    # Create and train model
-    if model_type == "decision_tree":
-        model = create_decision_tree_model()
-        model_filename = 'tictactoe_dt_model.pkl'
-    else:  # random_forest
-        model = create_random_forest_model()
-        model_filename = 'tictactoe_rf_model.pkl'
-    
-    # Train
-    model.fit(X_train, y_train)
-    
-    # Evaluate
+def evaluate_model(model, X_train, X_val, y_train, y_val, model_type):
     train_accuracy = model.score(X_train, y_train)
     val_accuracy = model.score(X_val, y_val)
     
@@ -76,26 +61,55 @@ def train_model(model_type="random_forest"):
     print(f"Training accuracy: {train_accuracy:.4f}")
     print(f"Validation accuracy: {val_accuracy:.4f}")
     
-    # if model_type == "random_forest":
-    #     # Print feature importance for random forest
-    #     feature_importance = model.feature_importances_
-    #     print("\nTop 5 most important board positions:")
-    #     for idx in feature_importance.argsort()[-5:][::-1]:
-    #         row, col = idx // 3, idx % 3
-    #         print(f"Position ({row}, {col}): {feature_importance[idx]:.4f}")
+    cv_scores = cross_val_score(model, X_train, y_train, cv=5)
+    print("\nCross-validation scores:", cv_scores)
+    print(f"Mean CV score: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
     
-    # Save model
+    y_pred = model.predict(X_val)
+    conf_matrix = confusion_matrix(y_val, y_pred)
+    print("\nConfusion Matrix:")
+    print(conf_matrix)
+    
+    class_report = classification_report(y_val, y_pred)
+    print("\nClassification Report:")
+    print(class_report)
+    
+    if model_type == "random_forest":
+        feature_importance = model.feature_importances_
+        print("\nTop 5 most important board positions:")
+        positions = ['TL', 'TM', 'TR', 'ML', 'MM', 'MR', 'BL', 'BM', 'BR']
+        importance_pairs = list(zip(positions, feature_importance))
+        importance_pairs.sort(key=lambda x: x[1], reverse=True)
+        for pos, imp in importance_pairs[:5]:
+            print(f"Position {pos}: {imp:.4f}")
+
+def train_model(model_type="random_forest"):
+    X, y = prepare_data()
+    
+    if len(X) == 0:
+        print("No training data available!")
+        return
+    
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    
+    if model_type == "decision_tree":
+        model = create_decision_tree_model()
+        model_filename = 'tictactoe_dt_model.pkl'
+    else:  # random_forest
+        model = create_random_forest_model()
+        model_filename = 'tictactoe_rf_model.pkl'
+    
+    model.fit(X_train, y_train)
+    
+    evaluate_model(model, X_train, X_val, y_train, y_val, model_type)
+    
     with open(model_filename, 'wb') as f:
         pickle.dump(model, f)
     print(f"\nModel saved as {model_filename}")
 
-def train_and_save_model(model_type="random_forest"):
-    X, y = prepare_data()
-    model = create_random_forest_model() if model_type == "random_forest" else create_decision_tree_model()
-    model.fit(X, y)
-    
-    with open('tictactoe_model.pkl', 'wb') as f:
-        pickle.dump(model, f)
+
 
 if __name__ == "__main__":
     print("Training Decision Tree model...")
