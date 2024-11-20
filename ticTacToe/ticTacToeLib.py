@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+import numpy as np
+
 
 # Class just for the TicTacToe board (doesn't have playing functions and is just used for the callback)
 class TicTacToeBoard:
@@ -29,7 +31,7 @@ class TicTacToeBoard:
 # Basic TicTacToe object
 class TicTacToe:
     # master is the tk display object containing this game view
-    def __init__(self, master):
+    def __init__(self, master, ai_model_path=None):
         self.master = master
         master.title("Tic Tac Toe")        
 
@@ -38,6 +40,9 @@ class TicTacToe:
 
         self.board = TicTacToeBoard(self.frame, 0, self.make_move)
         self.current_player = "X" # current player stores the player whos turn it is (changed in make_move)
+
+        self.ai = TicTacToeAI(ai_model_path) if ai_model_path else None
+
 
     # boardNum ignored since we only have one board
     def make_move(self, boardNum, row, col):
@@ -54,6 +59,9 @@ class TicTacToe:
                 self.reset_game()
             else:
                 self.current_player = "O" if self.current_player == "X" else "X"
+
+                if self.current_player == "O" and self.ai:
+                    self.make_ai_move()
 
     # Returns the winner's char if there is one and a space otherwise
     def get_winner(self):
@@ -77,6 +85,13 @@ class TicTacToe:
         for row in range(3):
             for col in range(3):
                 self.board.buttons[row][col].config(text=" ")
+
+    def make_ai_move(self):
+        move = self.ai.get_move(self.board.board)
+        if move:
+            row, col = move
+            self.make_move(0, row, col)  # boardNum is always 0 for regular TicTacToe
+
 
 # Ultimate TicTacToe object
 class UltimateTicTacToe:
@@ -184,4 +199,60 @@ class UltimateTicTacToe:
                 for row in range(3):
                     for col in range(3):
                         self.boards[brow][bcol].buttons[row][col].config(text=" ")
+
+
+class TicTacToeAI:
+    def __init__(self, model_path=None):
+        self.model = None
+        if model_path:
+            self.load_model(model_path)
+    
+    def load_model(self, path):
+        try:
+            import pickle
+            with open(path, 'rb') as f:
+                self.model = pickle.load(f)
+            print("Model loaded successfully!")
+        except Exception as e:
+            print(f"Failed to load model: {e}")
+            self.model = None
+    
+    def get_move(self, board):
+        if not self.model:
+            return None
+            
+        print("\nCurrent board state:")
+        for row in board:
+            print(row)
+        
+        valid_moves = [(i, j) for i in range(3) for j in range(3) if board[i][j] == " "]
+        if not valid_moves:
+            return None
+
+        print("Valid moves:", valid_moves)
+
+        best_move = None
+        best_score = float('-inf')
+        
+        for move in valid_moves:
+            row, col = move
+            test_board = [row[:] for row in board]
+            test_board[row][col] = "O"
+            
+            features = []
+            for r in test_board:
+                for c in r:
+                    if c == "X": features.append(1)
+                    elif c == "O": features.append(-1)
+                    else: features.append(0)
+            
+            score = 1 - self.model.predict_proba(np.array(features).reshape(1, -1))[0][1]
+            print(f"Move {move}: score = {score:.4f}")
+            
+            if score > best_score:
+                best_score = score
+                best_move = move
+        
+        print(f"Choosing move: {best_move}")
+        return best_move
 
