@@ -42,6 +42,10 @@ class TicTacToe:
         self.current_player = "X" # current player stores the player whos turn it is (changed in make_move)
 
         self.ai = TicTacToeAI(ai_model_path) if ai_model_path else None
+        self.aiChar = "X"
+
+        if self.ai and self.aiChar == self.current_player:
+            self.make_ai_move()
 
 
     # boardNum ignored since we only have one board
@@ -60,7 +64,7 @@ class TicTacToe:
             else:
                 self.current_player = "O" if self.current_player == "X" else "X"
 
-                if self.current_player == "O" and self.ai:
+                if self.current_player == self.aiChar and self.ai:
                     self.make_ai_move()
 
     # Returns the winner's char if there is one and a space otherwise
@@ -85,6 +89,11 @@ class TicTacToe:
         for row in range(3):
             for col in range(3):
                 self.board.buttons[row][col].config(text=" ")
+        
+        if self.ai and self.aiChar == self.current_player:
+            self.make_ai_move()
+
+
 
     def make_ai_move(self):
         move = self.ai.get_move(self.board.board)
