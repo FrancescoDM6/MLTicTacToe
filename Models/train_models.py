@@ -32,6 +32,13 @@ def prepare_data():
         'BL', 'BM', 'BR',
         'class'
     ])
+
+    # df = pd.read_csv('ticTacToeDataDFSameFormat.csv', skiprows=1, names=[
+    #     'TL', 'TM', 'TR',
+    #     'ML', 'MM', 'MR',
+    #     'BL', 'BM', 'BR',
+    #     'class'
+    # ])
     
 
     print("\nDataset Information:")
@@ -96,9 +103,11 @@ def train_model(model_type="random_forest"):
     
     if model_type == "decision_tree":
         model = create_decision_tree_model()
+        # model_filename = 'tictactoe_random_dt_model.pkl'
         model_filename = 'tictactoe_dt_model.pkl'
     else:  # random_forest
         model = create_random_forest_model()
+        # model_filename = 'tictactoe_random_rf_model.pkl'
         model_filename = 'tictactoe_rf_model.pkl'
     
     model.fit(X_train, y_train)
