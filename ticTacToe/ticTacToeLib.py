@@ -39,7 +39,7 @@ class TicTacToe:
         self.frame.grid(padx=10, pady=10)  # Adds some padding around the frame
 
         self.board = TicTacToeBoard(self.frame, 0, self.make_move)
-        self.current_player = "X" # current player stores the player whos turn it is (changed in make_move)
+        self.current_player = "O" # current player stores the player whos turn it is (changed in make_move)
 
         self.ai = TicTacToeAI(ai_model_path) if ai_model_path else None
 
@@ -60,7 +60,7 @@ class TicTacToe:
             else:
                 self.current_player = "O" if self.current_player == "X" else "X"
 
-                if self.current_player == "O" and self.ai:
+                if self.current_player == "X" and self.ai:
                     self.make_ai_move()
 
     # Returns the winner's char if there is one and a space otherwise
