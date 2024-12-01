@@ -202,7 +202,7 @@ def prepare_data(game_type="regular"):
     # y = (df['class'] == True).astype(int)
 
     # X = df.iloc[:, :9].replace(mapping).values
-    X = df.iloc[:, :-2].replace(mapping).values
+    X = df.iloc[:, :-1].replace(mapping).values
     y = (df['class'] == True).astype(int)
 
     print("\nDataset Information:")
@@ -263,11 +263,11 @@ def prepare_data(game_type="regular"):
 #     return X, y
 
 
-def evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger):
+def evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger, game_type):
     train_accuracy = model.score(X_train, y_train)
     val_accuracy = model.score(X_val, y_val)
     
-    print(f"\nModel Type: {model_type.replace('_', ' ').title()}")
+    print(f"\nModel Type: {model_type.replace('_', ' ').title()} - {game_type.capitalize()} Tic Tac Toe")
     print(f"Training accuracy: {train_accuracy:.4f}")
     print(f"Validation accuracy: {val_accuracy:.4f}")
     
@@ -322,10 +322,10 @@ def train_model(game_type="regular", model_type="random_forest", logger=None):
     
     if model_type == "decision_tree":
         model = create_decision_tree_model()
-        model_filename = 'tictactoe_enhanced_dt_model.pkl'
+        # model_filename = 'tictactoe_enhanced_dt_model.pkl'
     else:  # random_forest
         model = create_random_forest_model()
-        model_filename = 'tictactoe_enhanced_rf_model.pkl'
+        # model_filename = 'tictactoe_enhanced_rf_model.pkl'
     
     model.fit(X_train, y_train)
 
@@ -334,7 +334,9 @@ def train_model(game_type="regular", model_type="random_forest", logger=None):
 
     # model_filename = f'tictactoe_enhanced_{model_type}_model.pkl'
 
-    evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger)
+    evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger, game_type)
+    model_filename = f'{game_type}_tictactoe_{model_type}_model.pkl'
+
     
     with open(model_filename, 'wb') as f:
         pickle.dump(model, f)
@@ -343,8 +345,14 @@ def train_model(game_type="regular", model_type="random_forest", logger=None):
 if __name__ == "__main__":
     logger = TicTacToeLogger()
     
-    print("Training Decision Tree model...")
-    train_model("decision_tree", logger)
+    print("Training Regular Decision Tree model...")
+    train_model(game_type="regular", model_type="decision_tree", logger=logger)
     
-    print("\nTraining Random Forest model...")
-    train_model("random_forest", logger)
+    print("\nTraining Regular Random Forest model...")
+    train_model(game_type="regular", model_type="random_forest", logger=logger)
+
+    print("Training Ultimate Decision Tree model...")
+    train_model(game_type="ultimate", model_type="decision_tree", logger=logger)
+
+    print("\nTraining Ultimate Random Forest model...")
+    train_model(game_type="ultimate", model_type="random_forest", logger=logger)

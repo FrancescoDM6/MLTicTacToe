@@ -1147,3 +1147,241 @@ Most Important Features:
 - Validation Set: 192
 --------------------------------------------------------------------------------
 
+
+## Decision Tree Performance - 2024-12-01 01:15:49
+
+### Performance Metrics
+- Training Accuracy: 85.12%
+- Validation Accuracy: 85.42%
+- Cross-validation Score: 80.94% (std: 5.97%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 164 (85.42%)
+- False Positives: 15 (7.81%)
+- False Negatives: 13 (6.77%)
+- Precision: 88.19%
+- Recall: 89.60%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Random Forest Performance - 2024-12-01 01:16:05
+
+### Performance Metrics
+- Training Accuracy: 96.87%
+- Validation Accuracy: 91.67%
+- Cross-validation Score: 89.03% (std: 1.24%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 176 (91.67%)
+- False Positives: 10 (5.21%)
+- False Negatives: 6 (3.12%)
+- Precision: 92.25%
+- Recall: 95.20%
+
+### Feature Importance Analysis
+Most Important Features:
+- MM: 21.51%
+- BL: 12.97%
+- TR: 12.19%
+- TL: 11.71%
+- TM: 11.67%
+- ML: 11.35%
+- BM: 9.45%
+- MR: 9.16%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Decision Tree Performance - 2024-12-01 01:16:06
+
+### Performance Metrics
+- Training Accuracy: 85.12%
+- Validation Accuracy: 85.42%
+- Cross-validation Score: 80.94% (std: 5.97%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 164 (85.42%)
+- False Positives: 15 (7.81%)
+- False Negatives: 13 (6.77%)
+- Precision: 88.19%
+- Recall: 89.60%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Random Forest Performance - 2024-12-01 01:16:10
+
+### Performance Metrics
+- Training Accuracy: 96.87%
+- Validation Accuracy: 91.67%
+- Cross-validation Score: 89.03% (std: 1.24%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 176 (91.67%)
+- False Positives: 10 (5.21%)
+- False Negatives: 6 (3.12%)
+- Precision: 92.25%
+- Recall: 95.20%
+
+### Feature Importance Analysis
+Most Important Features:
+- MM: 21.51%
+- BL: 12.97%
+- TR: 12.19%
+- TL: 11.71%
+- TM: 11.67%
+- ML: 11.35%
+- BM: 9.45%
+- MR: 9.16%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Decision Tree Performance - 2024-12-01 01:41:52
+
+### Performance Metrics
+- Training Accuracy: 90.34%
+- Validation Accuracy: 88.54%
+- Cross-validation Score: 88.78% (std: 5.49%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 170 (88.54%)
+- False Positives: 6 (3.12%)
+- False Negatives: 16 (8.33%)
+- Precision: 94.78%
+- Recall: 87.20%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Random Forest Performance - 2024-12-01 01:42:05
+
+### Performance Metrics
+- Training Accuracy: 100.00%
+- Validation Accuracy: 99.48%
+- Cross-validation Score: 98.56% (std: 1.52%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 191 (99.48%)
+- False Positives: 1 (0.52%)
+- False Negatives: 0 (0.00%)
+- Precision: 99.21%
+- Recall: 100.00%
+
+### Feature Importance Analysis
+Most Important Features:
+- MM: 17.70%
+- BL: 12.09%
+- BR: 11.99%
+- TL: 11.76%
+- TR: 11.42%
+- BM: 8.96%
+- TM: 8.87%
+- ML: 8.60%
+- MR: 8.60%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Decision Tree Performance - 2024-12-01 01:42:05
+
+### Performance Metrics
+- Training Accuracy: 90.34%
+- Validation Accuracy: 88.54%
+- Cross-validation Score: 88.78% (std: 5.49%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 170 (88.54%)
+- False Positives: 6 (3.12%)
+- False Negatives: 16 (8.33%)
+- Precision: 94.78%
+- Recall: 87.20%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+
+
+## Random Forest Performance - 2024-12-01 01:42:10
+
+### Performance Metrics
+- Training Accuracy: 100.00%
+- Validation Accuracy: 99.48%
+- Cross-validation Score: 98.56% (std: 1.52%)
+
+### Confusion Matrix Analysis
+- Total Predictions: 192
+- Correct Predictions: 191 (99.48%)
+- False Positives: 1 (0.52%)
+- False Negatives: 0 (0.00%)
+- Precision: 99.21%
+- Recall: 100.00%
+
+### Feature Importance Analysis
+Most Important Features:
+- MM: 17.70%
+- BL: 12.09%
+- BR: 11.99%
+- TL: 11.76%
+- TR: 11.42%
+- BM: 8.96%
+- TM: 8.87%
+- ML: 8.60%
+- MR: 8.60%
+
+### Model Configuration
+
+### Dataset Information
+- Total Samples: 958
+- Training Set: 766
+- Validation Set: 192
+--------------------------------------------------------------------------------
+

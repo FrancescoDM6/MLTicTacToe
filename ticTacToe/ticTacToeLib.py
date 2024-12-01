@@ -386,26 +386,58 @@ class UltimateTicTacToeAI:
             self.model = None
 
     def get_move(self, boards, board_winners, next_board=None):
-        """
-        Get next move given current game state
-        boards: 3x3x3x3 list of boards
-        board_winners: 3x3 list of won boards
-        next_board: tuple (row,col) of forced next board or None if can choose
-        Returns: ((board_row, board_col), (move_row, move_col))
-        """
         if not self.model:
-            return None
-
-        # If we can choose board
-        if next_board is None:
-            board_choice = self._choose_board(boards, board_winners)
-        else:
-            board_choice = next_board
-
-        # Choose move within selected board
-        move = self._choose_move(boards[board_choice[0]][board_choice[1]], board_winners, board_choice)
+            return None, None
         
-        return board_choice, move
+        print("\nCurrent board state:")
+        for brow in range(3):
+            for row in range(3):
+                line = ""
+                for bcol in range(3):
+                    line += "".join(boards[brow*3+bcol][row]) + " | "
+                print(line[:-3])
+            if brow < 2:
+                print("---------------------")
+
+        valid_boards = [(i, j) for i in range(3) for j in range(3) if board_winners[i][j] == " " and any(" " in row for row in boards[i*3+j])]
+        if next_board is not None:
+            valid_boards = [next_board]
+        
+        if not valid_boards:
+            return None, None
+
+        print("Valid boards:", valid_boards)
+
+        best_board = None
+        best_move = None
+        best_score = float('-inf')
+
+        for bcoord in valid_boards:
+            board = boards[bcoord[0]*3+bcoord[1]]
+            valid_moves = [(i, j) for i in range(3) for j in range(3) if board[i][j] == " "]
+            
+            for move in valid_moves:
+                row, col = move
+                test_board = [row[:] for row in board]
+                test_board[row][col] = "O"  # Testing move for O
+                
+                features = []
+                for r in test_board:
+                    for c in r:
+                        if c == "X": features.append(1)
+                        elif c == "O": features.append(-1)
+                        else: features.append(0)
+                
+                score = 1 - self.model.predict_proba(np.array(features).reshape(1, -1))[0][1]
+                print(f"Board {bcoord}, Move {move}: score = {score:.4f}")
+                
+                if score > best_score:
+                    best_score = score
+                    best_board = bcoord
+                    best_move = move
+        
+        print(f"Choosing board: {best_board}, move: {best_move}")
+        return best_board, best_move
 
     def _choose_board(self, boards, board_winners):
         """Choose which board to play in when we have choice"""
