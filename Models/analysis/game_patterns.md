@@ -1,12 +1,12 @@
 # TicTacToe AI Game Pattern Analysis
 
-Last Updated: 2024-12-01 01:44:42
+Last Updated: 2024-12-01 17:51:20
 
 ## Overall Performance
-- Total Games: 59
-- Wins: 23 (38.98%)
-- Losses: 22 (37.29%)
-- Draws: 14 (23.73%)
+- Total Games: 68
+- Wins: 27 (39.71%)
+- Losses: 22 (32.35%)
+- Draws: 19 (27.94%)
 
 ## Movement Patterns
 - Average Moves per Game: 7.1
@@ -14,12 +14,12 @@ Last Updated: 2024-12-01 01:44:42
 - Average Corner Moves: 3.3
 
 ## Performance by Starting Position
-- Playing First: 37.93% win rate (58 games)
+- Playing First: 38.81% win rate (67 games)
 - Playing Second: 100.00% win rate (1 games)
 
 ## Recent Performance (Last 20 Games)
 - Win Rate: 40.00%
-- Average Game Duration: 7.2 seconds
+- Average Game Duration: 10.6 seconds
 - Average Move Time: 0.000 seconds
 
 ## Performance by Model Type
@@ -30,6 +30,6 @@ Last Updated: 2024-12-01 01:44:42
 - Average Game Length: 6.9 moves
 
 ### Random Forest
-- Games Played: 32
-- Win Rate: 43.75%
-- Average Game Length: 7.2 moves
+- Games Played: 41
+- Win Rate: 43.90%
+- Average Game Length: 7.3 moves

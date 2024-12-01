@@ -3,80 +3,87 @@ import os
 import random
 import pandas as pd
 from agentTicTacToeLib import *
+import sys
+import os
 
-columns = ['TL', 'TM', 'TR', 'ML', 'MM',
-           'MR', 'BL', 'BM', 'BR', 'class']
-dataDFSameFormat = pd.DataFrame(columns=columns.copy())
-dataDFThreeClass = pd.DataFrame(columns=columns.copy())
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from ticTacToe.ticTacToeLib import TicTacToeAI
 
-global game
 
-def getRandomMove():
-    moveList = [] # will contain (None, row, col)
-    for row in range(3):
-        for col in range(3):
-            if game.board.board[row][col] == " ":
-                moveList.append((None, row, col))
+def play_model_vs_random(model_path, num_games=100, model_plays_first=True):
+    game = TicTacToe()
+    models_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Models')
+    full_model_path = os.path.join(models_dir, model_path)
 
-    return random.choice(moveList)
+    ai = TicTacToeAI(full_model_path)
+    if not ai.model:
+        print(f"Failed to load model from {full_model_path}")
+        return []
+        
+    results = []
+    
+    for i in range(num_games):
+        print(f"Game {i+1}")
+        game.reset_game()
+        
+        # Record game data
+        game_data = {
+            'model_type': 'decision_tree' if 'dt_model' in model_path else 'random_forest',
+            'model_played_first': model_plays_first,
+            'moves': [],
+            'result': None,
+            'num_moves': 0
+        }
 
-def playGame():
+        while game.get_winner() == " " and not game.is_full():
+            # Model's turn
+            if (game.current_player == "X") == model_plays_first:
+                move = ai.get_move(game.board.board)
+                if move:
+                    row, col = move
+                    game_data['moves'].append(('model', (row, col)))
+            # Random's turn
+            else:
+                valid_moves = [(r, c) for r in range(3) for c in range(3) 
+                             if game.board.board[r][c] == " "]
+                row, col = random.choice(valid_moves)
+                game_data['moves'].append(('random', (row, col)))
+            
+            game.make_move(None, row, col)
+            game_data['num_moves'] += 1
 
-    gamedf = pd.DataFrame(columns=columns)
-    newRowsSameFormat = [] # used to store class/results as True if X wins and False otherwise
-    newRowsThreeClass = [] # used to store class/results as "X", "O", or "D" for draw
-
-    game.reset_game()
-
-    while game.get_winner() == " " and not game.is_full():
-        move = getRandomMove()
-        # print(move)
-        game.make_move(move[0], move[1], move[2])
-
-        rowItem = {}
-
-        rowItem["TL"] = game.board.board[0][0].lower() if game.board.board[0][0] != " " else "b"
-        rowItem["TM"] = game.board.board[0][1].lower() if game.board.board[0][1] != " " else "b"
-        rowItem["TR"] = game.board.board[0][2].lower() if game.board.board[0][2] != " " else "b"
-        rowItem["ML"] = game.board.board[1][0].lower() if game.board.board[1][0] != " " else "b"
-        rowItem["MM"] = game.board.board[1][1].lower() if game.board.board[1][1] != " " else "b"
-        rowItem["MR"] = game.board.board[1][2].lower() if game.board.board[1][2] != " " else "b"
-        rowItem["BL"] = game.board.board[2][0].lower() if game.board.board[2][0] != " " else "b"
-        rowItem["BM"] = game.board.board[2][1].lower() if game.board.board[2][1] != " " else "b"
-        rowItem["BR"] = game.board.board[2][2].lower() if game.board.board[2][2] != " " else "b"
-        rowItem["class"] = None
-
-        newRowsSameFormat.append(rowItem.copy()) # Need to replace the "None" later
-        newRowsThreeClass.append(rowItem.copy()) # Need to replace the "None" later
-
-    if game.get_winner() != " ":
-        result = game.get_winner()
-    else:
-        result = "D"
-
-    for i in range(len(newRowsSameFormat)):
-         
-        newRowsSameFormat[i]["class"] = "True" if result == "X" else "False"
-        newRowsThreeClass[i]["class"] = result
-
-    # print(result)
-    # print(newRowsSameFormat)
-    # print(newRowsThreeClass)
-
-    return newRowsSameFormat, newRowsThreeClass
-
+        # Record result
+        winner = game.get_winner()
+        if winner == " ":
+            game_data['result'] = 'draw'
+        else:
+            game_data['result'] = 'win' if (winner == "X") == model_plays_first else 'loss'
+        
+        results.append(game_data)
+    
+    return results
 
 if __name__ == "__main__":
-
-    game = TicTacToe() # pass None in for non-gui mode
+    # Test all model configurations
+    model_paths = [
+        'regular_tictactoe_dt_base_dt_model.pkl',
+        'regular_tictactoe_rf_base_rf_model.pkl',
+        # Add other model configurations
+    ]
     
-    for i in range(10000):
-        print(i)
-        newRowsSameFormat, newRowsThreeClass = playGame()
-        dataDFSameFormat = pd.concat([dataDFSameFormat, pd.DataFrame(newRowsSameFormat)], ignore_index=True)
-        dataDFThreeClass = pd.concat([dataDFThreeClass, pd.DataFrame(newRowsThreeClass)], ignore_index=True)
+    all_results = []
+    
+    for model_path in model_paths:
+        print(f"\nTesting {model_path}")
+        # Test as X
+        results_x = play_model_vs_random(model_path, num_games=100, model_plays_first=True)
+        # Test as O
+        results_o = play_model_vs_random(model_path, num_games=100, model_plays_first=False)
+        all_results.extend(results_x + results_o)
+    
+    # Save results to CSV for analysis
+    analysis_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'Models', 'analysis')
 
-
-    dataDFSameFormat.to_csv("ticTacToeDataDFSameFormat.csv", index=False)
-    dataDFThreeClass.to_csv("ticTacToeDataDFThreeClass.csv", index=False)
-
+    results_df = pd.DataFrame(all_results)
+    results_path = os.path.join(analysis_dir, 'model_vs_random_results.csv')
+    results_df.to_csv(results_path, index=False)

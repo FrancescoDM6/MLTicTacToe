@@ -1,3 +1,4 @@
+
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
@@ -7,9 +8,12 @@ from sklearn.tree import DecisionTreeClassifier
 import pandas as pd
 import sys
 import os
+sys.path.append(os.path.dirname(__file__))  # Add Models directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tictactoelogger import TicTacToeLogger
 from sklearn.model_selection import GridSearchCV
+from analyze_results import analyze_and_plot_results
+
 
 
 
@@ -69,7 +73,115 @@ def create_random_forest_model():
 #     print(f"Best parameters for {model_type}: {grid_search.best_params_}")
 #     return grid_search.best_estimator_
 
+def train_models_with_configurations():
+    logger = TicTacToeLogger()
+    
+    # Define configurations to test
+    dt_configs = [
+        {
+            'name': 'base_dt',
+            'params': {
+                'max_depth': 5,
+                'min_samples_split': 5,
+                'criterion': 'entropy',
+                'class_weight': 'balanced',
+                'random_state': 42
+            }
+        },
+        {
+            'name': 'deep_dt',
+            'params': {
+                'max_depth': 8,
+                'min_samples_split': 3,
+                'criterion': 'entropy',
+                'class_weight': 'balanced',
+                'random_state': 42
+            }
+        },
+        {
+            'name': 'gini_dt',
+            'params': {
+                'max_depth': 5,
+                'min_samples_split': 5,
+                'criterion': 'gini',
+                'class_weight': 'balanced',
+                'random_state': 42
+            }
+        }
+    ]
+    
+    rf_configs = [
+        {
+            'name': 'base_rf',
+            'params': {
+                'n_estimators': 1000,
+                'max_depth': 20,
+                'min_samples_split': 5,
+                'criterion': 'entropy',
+                'class_weight': 'balanced',
+                'random_state': 42,
+                'n_jobs': -1
+            }
+        },
+        {
+            'name': 'light_rf',
+            'params': {
+                'n_estimators': 500,
+                'max_depth': 15,
+                'min_samples_split': 4,
+                'criterion': 'entropy',
+                'class_weight': 'balanced',
+                'random_state': 42,
+                'n_jobs': -1
+            }
+        },
+        {
+            'name': 'heavy_rf',
+            'params': {
+                'n_estimators': 2000,
+                'max_depth': 25,
+                'min_samples_split': 3,
+                'criterion': 'entropy',
+                'class_weight': 'balanced',
+                'random_state': 42,
+                'n_jobs': -1
+            }
+        }
+    ]
 
+    game_types = ['regular', 'ultimate']
+    
+    for game_type in game_types:
+        X, y = prepare_data(game_type)
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Test Decision Tree configurations
+        for config in dt_configs:
+            print(f"\nTesting {game_type} Decision Tree - {config['name']}...")
+            model = DecisionTreeClassifier(**config['params'])
+            model.fit(X_train, y_train)
+            evaluate_model(model, X_train, X_val, y_train, y_val, 
+                         f"decision_tree_{config['name']}", logger, game_type)
+            
+            # Save model
+            model_filename = f"{game_type}_tictactoe_dt_{config['name']}_model.pkl"
+            with open(model_filename, 'wb') as f:
+                pickle.dump(model, f)
+        
+        # Test Random Forest configurations
+        for config in rf_configs:
+            print(f"\nTesting {game_type} Random Forest - {config['name']}...")
+            model = RandomForestClassifier(**config['params'])
+            model.fit(X_train, y_train)
+            evaluate_model(model, X_train, X_val, y_train, y_val, 
+                         f"random_forest_{config['name']}", logger, game_type)
+            
+            # Save model
+            model_filename = f"{game_type}_tictactoe_rf_{config['name']}_model.pkl"
+            with open(model_filename, 'wb') as f:
+                pickle.dump(model, f)
+
+    
 def create_enhanced_features(board_state):
     """
     Creates additional features beyond raw board positions
@@ -356,3 +468,14 @@ if __name__ == "__main__":
 
     print("\nTraining Ultimate Random Forest model...")
     train_model(game_type="ultimate", model_type="random_forest", logger=logger)
+
+
+    train_models_with_configurations()
+
+    print("\nGenerating performance visualizations...")
+    results_df = analyze_and_plot_results()
+    
+    # Print summary statistics
+    print("\nSummary Statistics:")
+    print(results_df.groupby(['model_type', 'game_type'])['val_accuracy'].agg(['mean', 'std', 'min', 'max']))
+
