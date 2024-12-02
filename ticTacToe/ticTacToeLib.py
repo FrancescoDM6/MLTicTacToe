@@ -302,9 +302,16 @@ class UltimateTicTacToe:
 
 
 class TicTacToeAI:
-    def __init__(self, model_path=None):
+    def __init__(self, model_path=None, preloaded_model=None):
         self.model = None
-        if model_path:
+        self.is_enhanced = False
+        
+        if preloaded_model:
+            self.model = preloaded_model
+            # Check if it's an enhanced model (based on provided info or assumptions)
+            self.is_enhanced = hasattr(preloaded_model, "feature_importances_")
+            print("Preloaded model successfully assigned!")
+        elif model_path:
             self.load_model(model_path)
             # Check if it's an enhanced model by trying to predict with enhanced features
             self.is_enhanced = "enhanced" in model_path
@@ -336,7 +343,7 @@ class TicTacToeAI:
         if not valid_moves:
             return None
 
-        print("Valid moves:", valid_moves)
+        # print("Valid moves:", valid_moves)
 
         best_move = None
         best_score = float('-inf')
@@ -356,7 +363,7 @@ class TicTacToeAI:
             
             # Get prediction
             score = 1 - self.model.predict_proba(np.array(features).reshape(1, -1))[0][1]
-            print(f"Move {move}: score = {score:.4f}")
+            # print(f"Move {move}: score = {score:.4f}")
             
             if score > best_score:
                 best_score = score
