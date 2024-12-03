@@ -343,7 +343,7 @@ class TicTacToeAI:
         if not valid_moves:
             return None
 
-        # print("Valid moves:", valid_moves)
+        print("Valid moves:", valid_moves)
 
         best_move = None
         best_score = float('-inf')
@@ -363,7 +363,7 @@ class TicTacToeAI:
             
             # Get prediction
             score = 1 - self.model.predict_proba(np.array(features).reshape(1, -1))[0][1]
-            # print(f"Move {move}: score = {score:.4f}")
+            print(f"Move {move}: score = {score:.4f}")
             
             if score > best_score:
                 best_score = score

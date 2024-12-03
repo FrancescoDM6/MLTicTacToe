@@ -595,7 +595,7 @@ def analyze_and_plot_results():
     
     # Read CSV files
     training_history = analysis_dir / 'training_history.csv'
-    game_statistics = analysis_dir / 'game_statistics.csv'
+    game_statistics = analysis_dir / 'final_model_vs_random_results.csv'
     
     if training_history.exists():
         print("Reading training history...")
@@ -642,12 +642,111 @@ def analyze_and_plot_results():
         plt.tight_layout()
         plt.savefig(str(analysis_dir / 'win_rates.png'))
         plt.close()
+
+    if game_statistics.exists():
+        print("Reading game statistics...")
+        results['games'] = pd.read_csv(game_statistics)
+        
+        # Exclude 'ultimate' models
+        filtered_results = results['games'][~results['games']['model_type'].str.contains('ultimate', case=False, na=False)]
+        
+        # Aggregate counts for wins, losses, and draws
+        game_outcomes = filtered_results.groupby(['model_type', 'result']).size().unstack(fill_value=0)
+        
+        # Ensure all result types are present for consistency
+        for outcome in ['win', 'loss', 'draw']:
+            if outcome not in game_outcomes.columns:
+                game_outcomes[outcome] = 0
+
+        # Calculate win rate (optional, for reference)
+        game_outcomes['win_rate'] = game_outcomes['win'] / game_outcomes.sum(axis=1)
+        game_outcomes = game_outcomes.sort_values(by='win', ascending=False)
+
+
+        # Plot the counts of wins, losses, and draws
+        plt.figure(figsize=(15, 8))
+        game_outcomes[['win', 'loss', 'draw']].plot(kind='bar', stacked=True, figsize=(12, 6), color=['green', 'red', 'gray'])
+        plt.title('Wins, Losses, and Draws by Model Type')
+        plt.xlabel('Model Type')
+        plt.ylabel('Number of Games')
+        plt.xticks(rotation=45, ha='right')
+        plt.legend(title='Game Outcome')
+        plt.tight_layout()
+        plt.savefig(str(analysis_dir / 'win_loss_draw_counts.png'))
+        plt.close()
+
+        # Plot the win rate (separate plot)
+        plt.figure(figsize=(12, 6))
+        game_outcomes['win_rate'].plot(kind='bar', color='blue')
+        plt.title('Win Rates by Model Type')
+        plt.xlabel('Model Type')
+        plt.ylabel('Win Rate')
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.savefig(str(analysis_dir / 'win_rates_by_model.png'))
+        plt.close()
+
     
     # Print summary statistics
     if 'training' in results:
         print("\nModel Performance Summary:")
         print(model_metrics)
 
+    df = pd.read_csv(training_history)
+    
+    # Split data into regular and ultimate
+    regular_data = df[~df['model_type'].str.contains('ultimate', case=False)]
+    ultimate_data = df[df['model_type'].str.contains('ultimate', case=False)]
+    
+    # Create separate plots for regular and ultimate
+    def create_comparison_plot(data, title_prefix, filename_prefix):
+        plt.figure(figsize=(15, 8))
+        model_metrics = data.groupby('model_type').agg({
+            'train_accuracy': 'mean',
+            'val_accuracy': 'mean',
+            'cv_score_mean': 'mean'
+        }).reset_index()
+        
+        x = range(len(model_metrics))
+        width = 0.25
+        
+        bars1 = plt.bar(x, model_metrics['train_accuracy'], width, label='Training Accuracy', color='blue')
+        bars2 = plt.bar([i + width for i in x], model_metrics['val_accuracy'], width, label='Validation Accuracy', color='green')
+        bars3 = plt.bar([i + width*2 for i in x], model_metrics['cv_score_mean'], width, label='CV Score', color='red')
+        
+        # Add value labels above each bar
+        def autolabel(bars):
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height:.2f}',
+                        ha='center', va='bottom',
+                        rotation=45)
+        
+        autolabel(bars1)
+        autolabel(bars2)
+        autolabel(bars3)
+
+        plt.xlabel('Model Type')
+        plt.ylabel('Score')
+        plt.title(f'{title_prefix} Training Metrics Comparison')
+        plt.xticks([i + width for i in x], model_metrics['model_type'], rotation=45, ha='right')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(str(analysis_dir / f'{filename_prefix}_training_metrics.png'))
+        plt.close()
+        
+        return model_metrics
+    
+    # Create both plots
+    regular_metrics = create_comparison_plot(regular_data, 'Regular TicTacToe', 'regular')
+    ultimate_metrics = create_comparison_plot(ultimate_data, 'Ultimate TicTacToe', 'ultimate')
+    
+    # Print summaries
+    print("\nRegular TicTacToe Model Performance:")
+    print(regular_metrics)
+    print("\nUltimate TicTacToe Model Performance:")
+    print(ultimate_metrics)
 
     print("\nAnalyzing model vs random agent games...")
     analyze_and_plot_random_games()

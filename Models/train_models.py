@@ -378,8 +378,11 @@ def prepare_data(game_type="regular"):
 def evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger, game_type):
     train_accuracy = model.score(X_train, y_train)
     val_accuracy = model.score(X_val, y_val)
+
+    full_model_type = f"{game_type}_{model_type}"
+
     
-    print(f"\nModel Type: {model_type.replace('_', ' ').title()} - {game_type.capitalize()} Tic Tac Toe")
+    print(f"\nModel Type: {full_model_type.replace('_', ' ').title()}")
     print(f"Training accuracy: {train_accuracy:.4f}")
     print(f"Validation accuracy: {val_accuracy:.4f}")
     
@@ -408,7 +411,7 @@ def evaluate_model(model, X_train, X_val, y_train, y_val, model_type, logger, ga
 
     # Log results - keep confusion matrix as numpy array
     logger.log_training_results({
-        'model_type': model_type,
+        'model_type': full_model_type,  # Now includes game type
         'train_accuracy': train_accuracy,
         'val_accuracy': val_accuracy,
         'cv_scores': cv_scores.tolist(),
